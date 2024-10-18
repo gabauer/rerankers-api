@@ -49,6 +49,8 @@ classifiers = [
 dependencies = [
   "pydantic",
   "tqdm",
+  "fastapi",
+  "uvicorn"
 ]
 
 [project.optional-dependencies]

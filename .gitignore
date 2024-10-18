@@ -138,3 +138,5 @@ local/
 try*.ipynb
 
 data/*/
+
+.idea/

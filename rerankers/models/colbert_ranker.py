@@ -128,7 +128,7 @@ class ColBERTModel(BertPreTrainedModel):
 
         return self.linear(sequence_output)
 
-    def _encode(self, texts: list[str], insert_token_id: int, is_query: bool = False):
+    def _encode(self, texts: List[str], insert_token_id: int, is_query: bool = False):
         encoding = self.tokenizer(
             texts,
             return_tensors="pt",
@@ -179,10 +179,10 @@ class ColBERTModel(BertPreTrainedModel):
         encoding = {key: value.to(self.device) for key, value in encoding.items()}
         return encoding
 
-    def _query_encode(self, query: list[str]):
+    def _query_encode(self, query: List[str]):
         return self._encode(query, self.query_token_id, is_query=True)
 
-    def _document_encode(self, documents: list[str]):
+    def _document_encode(self, documents: List[str]):
         return self._encode(documents, self.document_token_id)
 
     def _to_embs(self, encoding) -> torch.Tensor:
@@ -193,7 +193,7 @@ class ColBERTModel(BertPreTrainedModel):
             embs = embs / embs.norm(dim=-1, keepdim=True)
         return embs
 
-    def _rerank(self, query: str, documents: list[str]) -> list[float]:
+    def _rerank(self, query: str, documents: List[str]) -> List[float]:
         query_encoding = self._query_encode([query])
         documents_encoding = self._document_encode(documents)
         query_embeddings = self._to_embs(query_encoding)
@@ -293,12 +293,12 @@ class ColBERTRanker(BaseRanker):
         )
         return scores
 
-    def _query_encode(self, query: list[str]):
+    def _query_encode(self, query: List[str]):
         return self._encode(
             query, self.query_token_id, max_length=self.doc_max_length, is_query=True
         )
 
-    def _document_encode(self, documents: list[str]):
+    def _document_encode(self, documents: List[str]):
         tokenized_doc_lengths = [
             len(
                 self.tokenizer.encode(
@@ -321,7 +321,7 @@ class ColBERTRanker(BaseRanker):
 
     def _encode(
         self,
-        texts: list[str],
+        texts: List[str],
         insert_token_id: int,
         max_length: int,
         is_query: bool = False,
