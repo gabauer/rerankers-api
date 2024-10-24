@@ -13,24 +13,6 @@ app = FastAPI()
 # Get the ranker model from the environment variable or default to 'flashrank'
 RANKER_MODEL = os.getenv("RANKER_MODEL", "flashrank")
 
-# Map ranker models to pip dependencies
-dependencies = {
-    "colbert": "rerankers[transformers]",
-    "flashrank": "rerankers[flashrank]",
-}
-
-# Install the necessary dependencies
-dependency = dependencies.get(RANKER_MODEL)
-if dependency:
-    result = subprocess.run([sys.executable, "-m", "pip", "install", dependency], capture_output=True, text=True)
-    if result.returncode != 0:
-        print(f"Failed to install {dependency}: {result.stderr}")
-        raise Exception(f"Dependency installation failed: {result.stderr}")
-    else:
-        print(f"Successfully installed {dependency}: {result.stdout}")
-else:
-    raise Exception(f"Unknown ranker model: {RANKER_MODEL}")
-
 # Initialize the Reranker based on the environment
 try:
     ranker = Reranker(RANKER_MODEL)
