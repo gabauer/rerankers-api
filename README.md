@@ -84,6 +84,14 @@ The project dynamically installs dependencies based on the reranker model config
 
 If you're adding new rerankers to the project, ensure the dependencies are added in the code to be installed dynamically.
 
+## Run with docker
+
+You can start the API over docker using the following command:
+```
+docker run -p 8000:8000 rerankers-api:0.5.3
+```
+Notice, the image with the main version tag contains ALL dependencies for all rerankers which are supported. There are also images which do contain only the needed dependencies for one reranker type. See [https://hub.docker.com/r/gabauer/rerankers-api](https://hub.docker.com/r/gabauer/rerankers-api/tags) for further information. 
+
 ## Testing the API
 
 You can test the API using `curl` or any HTTP client (such as Postman).
