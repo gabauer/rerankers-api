@@ -46,7 +46,12 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
 ]
 
-dependencies = []
+dependencies = [
+  "pydantic",
+  "tqdm",
+  "fastapi",
+  "uvicorn"
+]
 
 [project.optional-dependencies]
 all = [
