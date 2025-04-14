@@ -1,20 +1,22 @@
 # Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
+# Install build dependencies required by setuptools
+RUN pip install setuptools
+RUN mkdir "/app"
+
+# Copy the pyproject.toml file and application code
+COPY README.md /app/README.md
+COPY LICENSE /app/LICENSE
+COPY pyproject.toml /app/pyproject.toml
+COPY rerankers /app/rerankers
+COPY rest /app/rest
+
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the pyproject.toml file to the working directory
-COPY pyproject.toml .
-
-# Install build dependencies required by setuptools
-RUN pip install setuptools
-
 # Install project dependencies specified in pyproject.toml
 RUN pip install .
-
-# Copy the rest of the application code
-COPY . .
 
 # Set environment variable to configure the ranker model (optional)
 # ENV RANKER_MODEL=flashrank  # You can uncomment this line to set a default ranker model
