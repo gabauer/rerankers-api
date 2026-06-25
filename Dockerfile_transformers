@@ -18,6 +18,10 @@ WORKDIR /app
 # Install project dependencies specified in pyproject.toml
 RUN pip install .
 RUN pip install "rerankers[transformers]"
+RUN python -c "from rerankers import Reranker; Reranker('colbert')"
+
+# Optimize memory reuse
+ENV MALLOC_ARENA_MAX=2
 
 # Set environment variable to configure the ranker model (optional)
 # ENV RANKER_MODEL=flashrank  # You can uncomment this line to set a default ranker model

@@ -18,6 +18,7 @@ WORKDIR /app
 # Install project dependencies specified in pyproject.toml
 RUN pip install .
 RUN pip install "rerankers[flashrank]"
+RUN python -c "from rerankers import Reranker; Reranker('flashrank')"
 
 # Set environment variable to configure the ranker model (optional)
 # ENV RANKER_MODEL=flashrank  # You can uncomment this line to set a default ranker model

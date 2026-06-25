@@ -88,7 +88,7 @@ If you're adding new rerankers to the project, ensure the dependencies are added
 
 You can start the API over docker using the following command:
 ```
-docker run -p 8000:8000 rerankers-api:0.5.3
+docker run -p 8000:8000 rerankers-api:0.6.0
 ```
 Notice, the image with the main version tag contains ALL dependencies for all rerankers which are supported. There are also images which do contain only the needed dependencies for one reranker type. See [https://hub.docker.com/r/gabauer/rerankers-api](https://hub.docker.com/r/gabauer/rerankers-api/tags) for further information. 
 

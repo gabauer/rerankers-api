@@ -1,6 +1,4 @@
 import os
-import subprocess
-import sys
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from rerankers import Reranker, Document
@@ -41,7 +39,7 @@ async def read_root():
 
 # Rerank route
 @app.post("/rerank", response_model=RerankResponse)
-async def rerank(request: RerankRequest):
+def rerank(request: RerankRequest):
     if len(request.documents) == 0:
         raise HTTPException(status_code=400, detail="The documents list cannot be empty.")
 
