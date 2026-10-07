@@ -1,33 +1,30 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM python:3.11-slim
 
-# Install build dependencies required by setuptools
-RUN pip install setuptools
-RUN mkdir "/app"
-
-# Copy the pyproject.toml file and application code
-COPY README.md /app/README.md
-COPY LICENSE /app/LICENSE
-COPY pyproject.toml /app/pyproject.toml
-COPY rerankers /app/rerankers
-COPY rest /app/rest
-
-# Set the working directory in the container
 WORKDIR /app
 
-# Install project dependencies specified in pyproject.toml
-RUN pip install .
-RUN pip install "rerankers[transformers]"
-RUN python -c "from rerankers import Reranker; Reranker('colbert')"
+# CPU-only PyTorch: spart ~4 GB CUDA-Ballast im Image (schnellerer Pull/Pod-Start)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
+ && pip install --no-cache-dir "transformers>=4.45.0,<5" sentencepiece protobuf
 
-# Optimize memory reuse
-ENV MALLOC_ARENA_MAX=2
+COPY README.md LICENSE pyproject.toml /app/
+COPY rerankers /app/rerankers
+RUN pip install --no-cache-dir .
 
-# Set environment variable to configure the ranker model (optional)
-# ENV RANKER_MODEL=flashrank  # You can uncomment this line to set a default ranker model
+COPY rest /app/rest
 
-# Expose port 8000 for the Uvicorn server
+# Modell ins Image backen (kein Download beim Pod-Start)
+RUN python -c "from rest.fast_colbert import FastColBERT; FastColBERT()"
+
+ENV RANKER_MODEL=colbert \
+    COLBERT_MODEL=colbert-ir/colbertv2.0 \
+    COLBERT_DTYPE=bf16 \
+    DOC_MAXLEN=180 \
+    BATCH_SIZE=32 \
+    EMB_CACHE_SIZE=0 \
+    MALLOC_ARENA_MAX=2 \
+    HF_HUB_OFFLINE=1
+
 EXPOSE 8000
 
-# Command to run the FastAPI app using Uvicorn
-CMD ["uvicorn", "rest.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Kein --reload in Produktion, 1 Worker: das Modell nutzt bereits alle vCPUs
+CMD ["uvicorn", "rest.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
