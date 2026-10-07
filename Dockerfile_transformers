@@ -17,7 +17,7 @@ RUN python -c "from rest.fast_colbert import FastColBERT; FastColBERT()"
 
 ENV RANKER_MODEL=colbert \
     COLBERT_MODEL=colbert-ir/colbertv2.0 \
-    COLBERT_DTYPE=bf16 \
+    COLBERT_DTYPE=fp32 \
     DOC_MAXLEN=180 \
     BATCH_SIZE=32 \
     EMB_CACHE_SIZE=0 \

@@ -3,7 +3,8 @@
 Liefert dieselben Scores wie rerankers.models.colbert_ranker.ColBERTRanker
 (gleiche Query-Kodierung, gleiche MaxSim-Formel), ist aber auf CPU deutlich schneller:
 
-* bf16-Autocast: nutzt AMX auf Intel Sapphire Rapids (m7i/c7i/r7i) für alle Matmuls
+* fp32 (Default): Scores identisch zum Original. Optional bf16-Autocast (AMX auf
+  Sapphire Rapids, ca. 3x schneller, Scores weichen um ~1e-3 ab)
 * Doc-Länge begrenzt (DOC_MAXLEN, Default 180 = ColBERT-Standard statt 510)
 * Dokumente einmal tokenisiert (statt zweimal), Marker-Token ohne Python-Tensor-Schleifen
 * Längen-Bucketing: Batches aus ähnlich langen Docs -> kaum Padding-Rechenzeit
@@ -38,7 +39,7 @@ class FastColBERT:
         model_name: str = "colbert-ir/colbertv2.0",
         doc_maxlen: int = 180,
         batch_size: int = 32,
-        dtype: str = "bf16",
+        dtype: str = "fp32",
         num_threads: Optional[int] = None,
         cache_size: int = 0,
         query_token: str = "[unused0]",
@@ -110,7 +111,7 @@ class FastColBERT:
                 mask[r, : len(seqs[i])] = 1
             embs = self._forward(ids, mask)
             for r, i in enumerate(idx):
-                out[i] = embs[r, : len(seqs[i])].to(torch.float16).clone()
+                out[i] = embs[r, : len(seqs[i])].clone()  # fp32: Cache-Treffer exakt
         return out  # type: ignore
 
     def doc_embeddings(self, texts: List[str]) -> List[torch.Tensor]:
@@ -166,7 +167,7 @@ class FastColBERT:
             model_name=os.getenv("COLBERT_MODEL", "colbert-ir/colbertv2.0"),
             doc_maxlen=int(os.getenv("DOC_MAXLEN", "180")),
             batch_size=int(os.getenv("BATCH_SIZE", "32")),
-            dtype=os.getenv("COLBERT_DTYPE", "bf16"),
+            dtype=os.getenv("COLBERT_DTYPE", "fp32"),
             num_threads=int(os.getenv("TORCH_THREADS", "0")) or None,
             cache_size=int(os.getenv("EMB_CACHE_SIZE", "0")),
         )

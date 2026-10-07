@@ -123,11 +123,11 @@ Bei `RANKER_MODEL=colbert` läuft das Reranking über `rest/fast_colbert.py` –
 | Variable | Default | Wirkung |
 |---|---|---|
 | `COLBERT_MODEL` | `colbert-ir/colbertv2.0` | HF-Modell oder lokaler Pfad |
-| `COLBERT_DTYPE` | `bf16` | `bf16` nutzt AMX auf Intel Sapphire Rapids (m7i/c7i/r7i); `fp32` für exakte Original-Scores |
+| `COLBERT_DTYPE` | `fp32` | `fp32` = Scores identisch zum Original; `bf16` nutzt AMX (m7i/c7i/r7i), ~3x schneller, Scores weichen um ~1e-3 ab |
 | `DOC_MAXLEN` | `180` | max. Tokens pro Dokument (Original: 510) |
 | `BATCH_SIZE` | `32` | Docs pro Forward-Pass |
-| `EMB_CACHE_SIZE` | `0` | Anzahl Doc-Embeddings im LRU-Cache (0 = aus); ca. 13–46 KB pro Doc |
+| `EMB_CACHE_SIZE` | `0` | Anzahl Doc-Embeddings im LRU-Cache (0 = aus); fp32, ca. 0,5 KB pro Doc-Token (≤ 92 KB pro Doc bei 180 Tokens) |
 | `TORCH_THREADS` | auto | Torch-Threads |
 
 Messung auf 2 vCPU Sapphire Rapids (≈ m7i.large), 100 Docs à 30–120 Tokens:
-Original 12,0 s → bf16 2,5 s → Cache-Treffer 0,06 s.
+Original 12,0 s → fp32 8,2 s → Cache-Treffer 0,06 s (alle exakt); bf16 2,5 s.
